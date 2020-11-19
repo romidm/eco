@@ -1,5 +1,6 @@
 from enum import Enum, auto
 import random
+import math
 
 
 class Product(Enum):
@@ -46,10 +47,10 @@ class EcoAgent:
 
 
 class Demand:
-    def __init__(self, consumer, good, amount):
+    def __init__(self, consumer, good, money):
         self.consumer = consumer
         self.good = good
-        self.amount = amount
+        self.money = money
 
     def __str__(self):
         return self.to_string()
@@ -58,7 +59,7 @@ class Demand:
         return self.to_string()
 
     def to_string(self):
-        return "Consumer:{} Good:{} Amount:{} ".format(self.consumer, self.good, self.amount)
+        return "Consumer:{} Good:{} Money:{} ".format(self.consumer, self.good, self.money)
 
 
 class Offer:
@@ -85,6 +86,16 @@ class Deal:
         self.product = product
         self.price = price
         self.qty = qty
+
+    def __str__(self):
+        return self.to_string()
+
+    def __repr__(self):
+        return self.to_string()
+
+    def to_string(self):
+        return "Seller:{} Buyer:{} Product:{} Price:{} Qty:{}".format(self.seller, self.buyer, self.product, self.price,
+                                                                      self.qty)
 
 
 class Eco:
@@ -134,6 +145,8 @@ class Eco:
         self.make_deals()
         print(self.deals)
 
+        self.process_deals()
+
     def make_demands(self):
         for agent in self.agents:
             self.demands.append(agent.get_demand())
@@ -141,16 +154,48 @@ class Eco:
     def make_offers(self):
         for agent in self.agents:
             if agent.product_qty > 0:
-                price = 10
+                price = agent.money // agent.product_qty
                 self.offers.append(Offer(agent, agent.product, agent.product_qty, price))
 
     def make_deals(self):
-        self.offers.sort(key=lambda offer: offer.price)
-        random.shuffle(self.demands)
-        for demand in self.demands:
-            if demand.amount <= 0:
-                continue
-            pass
+        self.make_deals_with_product(Product.A)
+        self.make_deals_with_product(Product.B)
+
+    def make_deals_with_product(self, product):
+        demands = list(filter(lambda d: d.good == product, self.demands))
+        random.shuffle(demands)
+
+        offers = list(filter(lambda o: o.product == product, self.offers))
+        offers.sort(key=lambda o: o.price)
+
+        index_offer = 0
+        for demand in demands:
+            while demand.money > 0:
+                offer = offers[index_offer]
+                if offer.price > demand.money:
+                    break
+                else:
+                    qty = demand.money // offer.price
+                    money = qty * offer.price
+
+                    self.deals.append(Deal(offer.producer, demand.consumer, product, offer.price, qty))
+                    offer.qty -= qty
+                    demand.money -= money
+
+                    if offer.qty == 0:
+                        index_offer += 1
+
+    def process_deals(self):
+        for deal in self.deals:
+            money = deal.qty * deal.price
+
+            seller = deal.seller
+            seller.money += money
+            seller.product_qty -= deal.qty
+
+            buyer = deal.buyer
+            buyer.money -= money
+            buyer.good_qty += deal.qty
 
     def consume(self):
         for agent in self.agents:
@@ -163,7 +208,10 @@ class Eco:
 
 def main():
     eco = Eco()
-    eco.init(10, 100, 2, 2)
+    eco.init(number_agents=10, money=1000, produce_per_turn=2, consume_per_turn=2)
+
+    eco.make_turn()
+    eco.make_turn()
     eco.make_turn()
 
     eco.print_agents_info()
