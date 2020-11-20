@@ -12,13 +12,12 @@ class Product(Enum):
 
 
 class EcoAgent:
-    def __init__(self, name, product, good, produce_per_turn, consume_per_turn, money):
+    def __init__(self, name, product, good, produce_per_turn, money):
         self.name = name
         self.product = product
         self.good = good
         self.money = money
         self.produce_per_turn = produce_per_turn
-        self.consume_per_turn = consume_per_turn
         self.product_qty = 0
         self.good_qty = 0
 
@@ -26,8 +25,7 @@ class EcoAgent:
         self.product_qty += self.produce_per_turn
 
     def consume(self):
-        consumed = min(self.good_qty, self.consume_per_turn)
-        self.good_qty -= consumed
+        self.good_qty = 0
 
     def get_demand(self):
         return Demand(self, self.good, self.money)
@@ -98,6 +96,8 @@ class Deal:
                                                                       self.qty)
 
 
+
+
 class Eco:
     def __init__(self):
         self.turn = 0
@@ -106,7 +106,7 @@ class Eco:
         self.offers = []
         self.deals = []
 
-    def init(self, number_agents, money, produce_per_turn, consume_per_turn):
+    def init(self, number_agents, money, produce_per_turn):
         money_agent = int(money / number_agents)
 
         for count in range(number_agents):
@@ -118,7 +118,7 @@ class Eco:
                 consumed = Product.A
 
             name = "Agent#{}".format(count + 1)
-            self.agents.append(EcoAgent(name, product, consumed, produce_per_turn, consume_per_turn, money_agent))
+            self.agents.append(EcoAgent(name, product, consumed, produce_per_turn, money_agent))
 
     def make_turn(self):
         self.turn += 1
@@ -208,7 +208,7 @@ class Eco:
 
 def main():
     eco = Eco()
-    eco.init(number_agents=10, money=1000, produce_per_turn=2, consume_per_turn=2)
+    eco.init(number_agents=10, money=1000, produce_per_turn=2)
 
     eco.make_turn()
     eco.make_turn()
