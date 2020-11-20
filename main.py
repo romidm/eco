@@ -100,7 +100,7 @@ class Deal:
 
 class Eco:
     def __init__(self):
-        self.turn = 0
+        self.step = 0
         self.agents = []
         self.demands = []
         self.offers = []
@@ -120,9 +120,9 @@ class Eco:
             name = "Agent#{}".format(count + 1)
             self.agents.append(EcoAgent(name, product, consumed, produce_per_turn, money_agent))
 
-    def make_turn(self):
-        self.turn += 1
-        print("Turn {}".format(self.turn))
+    def make_step(self):
+        self.step += 1
+        print("Turn {}".format(self.step))
 
         self.produce()
         self.trade()
@@ -210,9 +210,9 @@ def main():
     eco = Eco()
     eco.init(number_agents=10, money=1000, produce_per_turn=2)
 
-    eco.make_turn()
-    eco.make_turn()
-    eco.make_turn()
+    eco.make_step()
+    eco.make_step()
+    eco.make_step()
 
     eco.print_agents_info()
 
