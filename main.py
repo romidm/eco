@@ -1,6 +1,5 @@
-from enum import Enum, auto
 import random
-import math
+from enum import Enum, auto
 
 
 class Product(Enum):
@@ -96,8 +95,6 @@ class Deal:
                                                                       self.qty)
 
 
-
-
 class Eco:
     def __init__(self):
         self.step = 0
@@ -105,6 +102,7 @@ class Eco:
         self.demands = []
         self.offers = []
         self.deals = []
+        self.deals_history = []
 
     def init(self, number_agents, money, produce_per_turn):
         money_agent = int(money / number_agents)
@@ -197,6 +195,10 @@ class Eco:
             buyer.money -= money
             buyer.good_qty += deal.qty
 
+            deal_history = {'step': self.step, 'seller': seller, 'buyer': buyer, 'price': deal.price, 'qty': deal.qty,
+                            'money': money}
+            self.deals_history.append(deal_history)
+
     def consume(self):
         for agent in self.agents:
             agent.consume()
@@ -215,6 +217,7 @@ def main():
     eco.make_step()
 
     eco.print_agents_info()
+    print(eco.deals_history)
 
 
 if __name__ == '__main__':
