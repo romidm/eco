@@ -120,11 +120,14 @@ class Eco:
 
     def make_step(self):
         self.step += 1
-        print("Turn {}".format(self.step))
 
         self.produce()
         self.trade()
         self.consume()
+
+    def make_steps(self, steps):
+        for _ in range(steps):
+            self.make_step()
 
     def produce(self):
         for agent in self.agents:
@@ -133,15 +136,12 @@ class Eco:
     def trade(self):
         self.demands.clear()
         self.make_demands()
-        print(self.demands)
 
         self.offers.clear()
         self.make_offers()
-        print(self.offers)
 
         self.deals.clear()
         self.make_deals()
-        print(self.deals)
 
         self.process_deals()
 
@@ -212,9 +212,7 @@ def main():
     eco = Eco()
     eco.init(number_agents=10, money=1000, produce_per_turn=2)
 
-    eco.make_step()
-    eco.make_step()
-    eco.make_step()
+    eco.make_steps(3)
 
     eco.print_agents_info()
     print(eco.deals_history)
