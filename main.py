@@ -211,7 +211,6 @@ class Eco:
 def main():
     eco = Eco()
     eco.init(number_agents=10, money=1000, produce_per_turn=2)
-
     eco.make_steps(3)
 
     eco.print_agents_info()
