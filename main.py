@@ -19,6 +19,7 @@ class EcoAgent:
         self.produce_per_turn = produce_per_turn
         self.product_qty = 0
         self.good_qty = 0
+        self.price_rate = 10
 
     def produce(self):
         self.product_qty += self.produce_per_turn
@@ -28,6 +29,17 @@ class EcoAgent:
 
     def get_demand(self):
         return Demand(self, self.good, self.money)
+
+    def get_price(self, last_price=None):
+        if last_price is None or last_price == 0:
+            price = self.money // self.product_qty
+        else:
+            if self.product_qty > self.produce_per_turn:
+                price = last_price * ((100 - self.price_rate) / 100)
+            else:
+                price = last_price * ((100 + self.price_rate) / 100)
+
+        return price
 
     def __str__(self):
         return self.to_string()
@@ -152,7 +164,7 @@ class Eco:
     def make_offers(self):
         for agent in self.agents:
             if agent.product_qty > 0:
-                price = agent.money // agent.product_qty
+                price = agent.get_price(self.get_last_price(agent))
                 self.offers.append(Offer(agent, agent.product, agent.product_qty, price))
 
     def make_deals(self):
@@ -168,20 +180,24 @@ class Eco:
 
         index_offer = 0
         for demand in demands:
-            while demand.money > 0:
+            while demand.money > 0 and index_offer <= len(offers) - 1:
+
                 offer = offers[index_offer]
-                if offer.price > demand.money:
-                    break
+                if offer.price > 0:
+                    if offer.price > demand.money:
+                        break
+                    else:
+                        qty = demand.money // offer.price
+                        money = qty * offer.price
+
+                        self.deals.append(Deal(offer.producer, demand.consumer, product, offer.price, qty))
+                        offer.qty -= qty
+                        demand.money -= money
+
+                        if offer.qty == 0:
+                            index_offer += 1
                 else:
-                    qty = demand.money // offer.price
-                    money = qty * offer.price
-
-                    self.deals.append(Deal(offer.producer, demand.consumer, product, offer.price, qty))
-                    offer.qty -= qty
-                    demand.money -= money
-
-                    if offer.qty == 0:
-                        index_offer += 1
+                    index_offer += 1
 
     def process_deals(self):
         for deal in self.deals:
@@ -203,6 +219,16 @@ class Eco:
         for agent in self.agents:
             agent.consume()
 
+    def get_last_price(self, seller):
+        deals = list(filter(lambda d: d.get('seller') == seller, self.deals_history))
+        deals.sort(key=lambda e: e.get('step'), reverse=True)
+        if len(deals) > 0:
+            last_price = deals[0].get('price')
+        else:
+            last_price = None
+
+        return last_price
+
     def print_agents_info(self):
         for agent in self.agents:
             print(agent.info())
@@ -210,7 +236,7 @@ class Eco:
 
 def main():
     eco = Eco()
-    eco.init(number_agents=10, money=1000, produce_per_turn=2)
+    eco.init(number_agents=2, money=100, produce_per_turn=2)
     eco.make_steps(3)
 
     eco.print_agents_info()
