@@ -190,6 +190,8 @@ class Eco:
                         break
                     else:
                         qty = demand.money // offer.price
+                        if qty > offer.qty:
+                            qty = offer.qty
                         money = qty * offer.price
 
                         self.deals.append(Deal(offer.producer, demand.consumer, product, offer.price, qty))
@@ -244,7 +246,7 @@ class Eco:
 
 def main():
     eco = Eco()
-    eco.init(number_agents=10, money=100, produce_per_turn=2)
+    eco.init(number_agents=2, money=100, produce_per_turn=1)
     eco.make_steps(3)
 
     eco.print_agents_info()
