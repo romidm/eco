@@ -211,8 +211,8 @@ class Eco:
             buyer.money -= money
             buyer.good_qty += deal.qty
 
-            deal_history = {'step': self.step, 'seller': seller, 'buyer': buyer, 'price': deal.price, 'qty': deal.qty,
-                            'money': money}
+            deal_history = {'step': self.step, 'product': str(deal.product), 'seller': seller, 'buyer': buyer,
+                            'price': deal.price, 'qty': deal.qty, 'money': money}
             self.deals_history.append(deal_history)
 
     def consume(self):
