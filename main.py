@@ -115,6 +115,7 @@ class Eco:
         self.offers = []
         self.deals = []
         self.deals_history = []
+        self.agents_history = []
 
     def init(self, number_agents, money, produce_per_turn):
         money_agent = int(money / number_agents)
@@ -136,6 +137,7 @@ class Eco:
         self.produce()
         self.trade()
         self.consume()
+        self.update_history()
 
     def make_steps(self, steps):
         for _ in range(steps):
@@ -228,6 +230,12 @@ class Eco:
             last_price = None
 
         return last_price
+
+    def update_history(self):
+        for agent in self.agents:
+            agent_history = {'step': self.step, 'agent': agent, 'money': agent.money, 'product': agent.product,
+                             'qty': agent.product_qty}
+            self.agents_history.append(agent_history)
 
     def print_agents_info(self):
         for agent in self.agents:
